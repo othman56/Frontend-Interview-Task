@@ -13,4 +13,10 @@ function Link({ link }) {
 
 export default Link;
 
-const NavHolder = styled.div``;
+const NavHolder = styled.ul`
+  > .link {
+    text-decoration: none;
+    font-family: Inter;
+    color: white;
+  }
+`;

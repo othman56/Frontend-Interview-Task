@@ -1,54 +1,119 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+
+const schema = yup
+  .object({
+    email: yup.string().email().required(),
+    fullName: yup.string().required(),
+    password: yup.string().min(4).max(10).required(),
+    userType: yup.string().required(),
+  })
+  .required();
 
 function SignUp() {
+  const [data, setData] = useState([]);
+  const setUserValue = [];
+  const navigate = useNavigate();
+
+  const myPost = axios.create({
+    baseURL: "https://auth-test-api-techinnover.herokuapp.com/api/v1/user",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const getData = (data) => {
+    myPost
+      .post("/create", data)
+      .then((response) => {
+        if (response.data) {
+          toast.success("Sign up was successful");
+          navigate("/login");
+        }
+        console.log(response.data);
+        setData(response.data);
+      })
+      .catch((error) => {
+        toast.error("User already exists");
+        toast(error.message);
+        console.log(error);
+      });
+  };
+
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm();
-  const onSubmit = (data) => {
-    console.log(data);
+  } = useForm({ resolver: yupResolver(schema) });
+  const onSubmit = async (data) => {
+    getData(data);
+  };
+
+  const RoleType = {
+    Teacher: "teacher",
+    Student: "student",
+  };
+
+  const handleChange = (e) => {
+    setUserValue(RoleType);
   };
 
   return (
     <Wrapper>
-      <Title>SignUp</Title>
-
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <label htmlFor="Email">Email address</label>
-        <input
-          type="email"
-          placeholder="Enter your email address"
-          name="email"
-          {...register("email")}
-        />
+        <Title>SignUp</Title>
 
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          placeholder="Enter your password"
-          name="password"
-          {...register("password", { required: true, minLength: 6 })}
-        />
-        {errors.password && <p>password should be 6 or more characters</p>}
+        <InputSection>
+          <label htmlFor="Email">Email address</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter your email address"
+            autoComplete="off"
+            {...register("email")}
+          />
+          <p>{errors.email?.message}</p>
+        </InputSection>
 
-        <label htmlFor="Full name">Full name</label>
-        <input
-          type="text"
-          placeholder="enter your full name"
-          name="name"
-          {...register("name")}
-        />
+        <InputSection>
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            autoComplete="off"
+            {...register("password", { required: true })}
+          />
+          <p>{errors.password?.message}</p>
+        </InputSection>
 
-        <label htmlFor="role">What is your role</label>
-        <select name="role">
-          <option value="frontend">Frontend</option>
-          <option value="Backend">Backend</option>
-          <option value="Fullstack">Fullstack</option>
-        </select>
+        <InputSection>
+          <label htmlFor="Full name">Full name</label>
+          <input
+            type="text"
+            name="fullName"
+            placeholder="enter your full name"
+            {...register("fullName")}
+          />
+          <p>{errors.fullName?.message}</p>
+        </InputSection>
+
+        <InputSection>
+          <label htmlFor="role">What is your role</label>
+          <select
+            name="userType"
+            onChange={handleChange}
+            {...register("userType")}
+          >
+            <option value={RoleType.Teacher}>{RoleType.Teacher}</option>
+            <option value={RoleType.Student}>{RoleType.Student}</option>
+          </select>
+        </InputSection>
         <button type="submit">Log in</button>
       </Form>
     </Wrapper>
@@ -60,7 +125,41 @@ export default SignUp;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  width: 100vw;
   padding: 2rem;
+  background-color: whitesmoke;
+  overflow: hidden;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+
+  p {
+    font-size: 12px;
+    color: red;
+  }
+
+  > button {
+    margin-top: 20px;
+    width: 50%;
+    border: none;
+    background: #7d5fff;
+    border-radius: 6px;
+    color: white;
+    padding: 18px 20px;
+    cursor: pointer;
+    font-family: Inter;
+  }
+
+  > button:hover {
+    box-shadow: 2px 3px 3px lightblue;
+    transition: 1000 linear;
+  }
 `;
 
 const Title = styled.h1`
@@ -73,52 +172,38 @@ const Title = styled.h1`
   color: #101828;
 `;
 
-const Form = styled.form`
+const InputSection = styled.div`
   display: flex;
   flex-direction: column;
+  width: 50%;
 
   > label {
+    margin-bottom: 10px;
     font-family: "Inter";
-    font-style: normal;
     font-weight: 500;
     font-size: 14px;
     line-height: 17px;
-    margin-top: 20px;
-    margin-bottom: 10px;
     color: #667085;
   }
 
   > input {
+    padding: 17px 20px;
     font-family: "Inter";
     font-style: normal;
     font-weight: 400;
     font-size: 12px;
     line-height: 15px;
     letter-spacing: -0.02em;
-    color: #8d94a4;
-    width: 44%;
-    padding: 0.8rem;
     border: 1px solid #eaeced;
-  }
-
-  p {
-    font-size: 12px;
-    color: red;
-  }
-
-  > button {
-    margin-top: 30px;
-    width: 47%;
-    border: none;
-    background: #7d5fff;
     border-radius: 6px;
-    color: white;
-    padding: 18px 20px;
   }
 
   > select {
-    width: 47%;
-    padding: 0.8rem;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 17px 20px;
     border: 1px solid #eaeced;
+    border-radius: 6px;
   }
 `;

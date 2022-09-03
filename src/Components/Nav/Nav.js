@@ -22,8 +22,7 @@ const NavHolder = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 8em;
-  padding: 2rem;
+  width: 10em;
 
   > link {
     text-decoration: none;
