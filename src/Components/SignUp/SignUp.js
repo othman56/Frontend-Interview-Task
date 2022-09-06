@@ -39,8 +39,11 @@ function SignUp() {
         setData(response.data);
       })
       .catch((error) => {
-        toast.error("User already exists");
-        toast(error.message);
+        if (error.message === "network error") {
+          toast(error.message);
+        } else {
+          toast.error("User already exists");
+        }
         console.log(error);
       });
   };
@@ -130,6 +133,10 @@ const Wrapper = styled.div`
   padding: 2rem;
   background-color: whitesmoke;
   overflow: hidden;
+
+  @media screen and (max-width: 768px) and (min-width: 320px) {
+    padding: 0;
+  }
 `;
 
 const Form = styled.form`
@@ -154,22 +161,40 @@ const Form = styled.form`
     padding: 18px 20px;
     cursor: pointer;
     font-family: Inter;
+
+    @media screen and (max-width: 768px) and (min-width: 320px) {
+      width: 100%;
+    }
   }
 
   > button:hover {
     box-shadow: 2px 3px 3px lightblue;
     transition: 1000 linear;
   }
+
+  @media screen and (max-width: 768px) and (min-width: 320px) {
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const Title = styled.h1`
-  font-family: "Inter";
-  font-style: normal;
+  width: 50%;
+  display: flex;
+  justify-self: flex-start;
+  margin-bottom: 10px;
   font-weight: 700;
   font-size: 44px;
   line-height: 53px;
   letter-spacing: -0.05em;
   color: #101828;
+
+  @media screen and (max-width: 768px) and (min-width: 320px) {
+    padding: 1rem 0;
+  }
 `;
 
 const InputSection = styled.div`
@@ -178,8 +203,7 @@ const InputSection = styled.div`
   width: 50%;
 
   > label {
-    margin-bottom: 10px;
-    font-family: "Inter";
+    padding: 10px 0;
     font-weight: 500;
     font-size: 14px;
     line-height: 17px;
@@ -189,7 +213,6 @@ const InputSection = styled.div`
   > input {
     padding: 17px 20px;
     font-family: "Inter";
-    font-style: normal;
     font-weight: 400;
     font-size: 12px;
     line-height: 15px;
@@ -205,5 +228,9 @@ const InputSection = styled.div`
     padding: 17px 20px;
     border: 1px solid #eaeced;
     border-radius: 6px;
+  }
+
+  @media screen and (max-width: 768px) and (min-width: 320px) {
+    width: 100%;
   }
 `;
